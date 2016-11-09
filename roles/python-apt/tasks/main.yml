@@ -1,0 +1,3 @@
+# Install netq from repo
+- name: Install python-apt for ansible checking
+  apt: name=python-apt update_cache=yes
