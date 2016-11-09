@@ -1,0 +1,47 @@
+# Add the EA repo to the sources list
+
+- name: Add Cumulus apt gpg key
+  apt_key: keyserver=p80.pool.sks-keyservers.net id=DFEFCFBC5A1A622FEFCA76497EB364B4A88BBC95
+- name: Enable EA deb apt repo
+  apt_repository: repo='deb [arch=amd64] http://repo3.cumulusnetworks.com/repo CumulusLinux-3-early-access cumulus' state=present update_cache=no
+- name: Enable EA deb-src apt repo
+  apt_repository: repo='deb-src [arch=amd64] http://repo3.cumulusnetworks.com/repo CumulusLinux-3-early-access cumulus' state=present update_cache=no
+- name: Enable CL deb repo
+  apt_repository: repo='deb [arch=amd64] http://repo3.cumulusnetworks.com/repo CumulusLinux-3 cumulus upstream' state=present update_cache=no
+- name: Enable CL deb-src apt repo
+  apt_repository: repo='deb-src [arch=amd64] http://repo3.cumulusnetworks.com/repo CumulusLinux-3 cumulus upstream' state=present update_cache=no
+- name: Enable CL updates deb apt repo
+  apt_repository: repo='deb [arch=amd64] http://repo3.cumulusnetworks.com/repo CumulusLinux-3-updates cumulus upstream' state=present update_cache=no
+- name: Enable CL updates apt-src repo
+  apt_repository: repo='deb-src [arch=amd64] http://repo3.cumulusnetworks.com/repo CumulusLinux-3-updates cumulus upstream' state=present update_cache=no
+
+# Install netq-agent package
+#- name: Add the netq package
+#  apt: name=cumulus-netq update_cache=yes allow_unauthenticated=yes
+
+# Check if netq-dev is installed
+- name: check netq package status
+  command: dpkg-query -W python-netq_0.1-cl3eau1_all
+  register: netq_dev_check_deb
+  failed_when: netq_dev_check_deb.rc > 1
+  changed_when: netq_dev_check_deb.rc == 1
+
+# Push the dev build of netq
+- name: Copy NetQ dev package
+  copy: src=python-netq_0.1-cl3eau1_all.deb dest=/home/cumulus/python-netq_0.1-cl3eau1_all.deb owner=cumulus group=cumulus mode=644
+#  when: netq_dev_check_deb.rc ==1
+
+# Install dev build of netq
+- name: Install netq dev build
+  apt: deb="/home/cumulus/python-netq_0.1-cl3eau1_all.deb"
+  become: true
+  become_method: sudo
+#  when: netq_dev_check_deb.rc ==1
+
+# Ensure ntpd is running
+- name: Ensure ntp is running
+  service: name=ntp state=started
+
+# Set netq-agent configuration
+- name: Set netq-agent configuration
+  template: src=netq-cli.yml dest=/etc/netq/netq-agent.conf
