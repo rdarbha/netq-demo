@@ -1,0 +1,29 @@
+---
+# - hosts: oob-mgmt-server
+#   user: cumulus
+#   become: yes
+#   become_method: sudo
+#   roles:
+#     - netq-redis
+#     - netq-cli
+
+- hosts: leafs
+  user: cumulus
+  become: yes
+  become_method: sudo
+  roles:
+    - python-apt
+
+- hosts: spines
+  user: cumulus
+  become: yes
+  become_method: sudo
+  roles:
+    - python-apt
+
+# - hosts: servers
+#   user: cumulus
+#   become: yes
+#   become_method: sudo
+#   roles:
+#     - netq-cli
