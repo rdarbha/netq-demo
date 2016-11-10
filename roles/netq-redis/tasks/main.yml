@@ -1,9 +1,9 @@
 # Install redis packages
 - name: Add the redis-server package
-  apt: name=redis-server update_cache=yes
+  apt: name=redis-server update_cache=yes state=present
 
 - name: Add redis-tools package
-  apt: name=redis-tools update_cache=yes
+  apt: name=redis-tools update_cache=yes state=present
 
 # Set redis-server configuration
 - name: Set redis-server configuration
